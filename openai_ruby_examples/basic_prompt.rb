@@ -12,19 +12,15 @@ require "openai"
 # Create a function to interact with the API
 def generate_text(prompt, temperature=0.7, max_tokens=100, top_p=1.0)
   begin
-    response = @client.completions(
+    response = @client.chat(
       parameters: {
-        model: "text-davinci-002",
-        prompt: prompt,
-        max_tokens: max_tokens,
-        top_p: top_p,
-        n: 1,
-        stop: nil,
-        echo: false
-      }
-    )
+          model: "gpt-3.5-turbo", # Required.
+          messages: [{ role: "user", content: prompt}], # Required.
+          temperature: 0.7,
+      })    
 
-    return response["choices"].map { |c| c["text"] }
+    return response.dig("choices", 0, "message", "content")
+
   rescue StandardError => e
     puts "Error generating text: #{e.message}"
     return nil
